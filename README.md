@@ -1,3 +1,31 @@
+# Zoom OAuth POC
+
+Full-stack Zoom OAuth integration: Connect Zoom, create/update/delete meetings, token refresh, and deauthorization endpoint.
+
+## Zoom OAuth setup
+
+1. Create an OAuth app in [Zoom Marketplace](https://marketplace.zoom.us/).
+2. Set **Redirect URL** to your app’s callback (e.g. `http://localhost:5173/zoom/callback` for local dev).
+3. In `apps/api`, copy `.env.example` to `.env` and set:
+   - `ZOOM_API_KEY` – Zoom app Client ID  
+   - `ZOOM_API_SECRET` – Zoom app Client Secret  
+   - `ZOOM_REDIRECT_URL` – must match the Redirect URL in the Zoom app (e.g. `http://localhost:5173/zoom/callback`).
+
+## Run locally
+
+```sh
+# From repo root
+pnpm install
+pnpm dev
+```
+
+- **API**: http://localhost:8000  
+- **Web**: http://localhost:5173 (Vite proxies `/api` to the API)
+
+Flow: open the web app → “Connect Zoom” → authorize in Zoom → callback exchanges the code and stores tokens → use “Manage meetings” to create/update/delete meetings.
+
+---
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.
