@@ -70,4 +70,41 @@ app.get('/api/list-sheets', async (req, res) => {
   }
 });
 
+app.get('/api/get-sheet/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: id,
+      range: "sample"
+    });
+    
+    const result = response.data;
+    
+    /**
+     * response.data structure
+     
+     response  {
+       range: 'sample!A1:Z1000',
+       majorDimension: 'ROWS',
+       values: [
+         [ 'Company', 'Contact', 'Country' ],
+         [ 'Alfreds Futterkiste', 'Maria Anders', 'Germany' ],
+         [ 'Centro comercial Moctezuma', 'Francisco Chang', 'Mexico' ],
+         [ 'Ernst Handel', 'Roland Mendel', 'Austria' ],
+         [ 'Island Trading', 'Helen Bennett', 'UK' ],
+         [ 'Laughing Bacchus Winecellars', 'Yoshi Tannamuri', 'Canada' ],
+         [ 'Magazzini Alimentari Riuniti', 'Giovanni Rovelli', 'Italy' ]
+       ]
+     }
+     
+     */
+    
+    res.json(result || []);
+    
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+    }
+})
+
 app.listen(8000, () => console.log("Server running on port 5000"));
