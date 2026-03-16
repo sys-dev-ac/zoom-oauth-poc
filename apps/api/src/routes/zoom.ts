@@ -52,7 +52,7 @@ router.post("/meetings", async (req: Request, res: Response) => {
     const creds = await getOrRefreshCredentials(accountId);
     const { topic, agenda, start_time, duration } = req.body ?? {};
 
-    const resZoom = await fetch(`${ZOOM_API_BASE}/users/${encodeURIComponent(creds.email)}/meetings`, {
+    const resZoom = await fetch(`${ZOOM_API_BASE}/users/${encodeURIComponent(creds.account_id)}/meetings`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${creds.access_token}`,
