@@ -76,7 +76,7 @@ app.get('/api/get-sheet/:id', async (req, res) => {
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: id,
-      range: "sample"
+      range: "sample" // sheet name inside the worksbook
     });
     
     const result = response.data;
