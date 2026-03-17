@@ -1,0 +1,1 @@
+## This folder contains the all PDF document that you need to follow in the application configure level as a admin.
