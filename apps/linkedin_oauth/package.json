@@ -1,19 +1,21 @@
 {
-  "name": "test_google_auth",
+  "name": "linkedin_oauth",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:google": "node index.js"
+    "dev": "npx tsc -b && node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
-    "@google-cloud/local-auth": "^2.1.0",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "googleapis": "^105.0.0"
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "ts-node": "^10.9.2"
   }
 }

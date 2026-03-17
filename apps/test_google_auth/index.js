@@ -1,6 +1,7 @@
 const { google } = require("googleapis");
 const express = require("express");
 const dotenv = require("dotenv");
+const crypto = require("crypto");
 
 dotenv.config();
 
@@ -12,17 +13,49 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 app.get("/auth/google", (req, res) => {
+  // Generate a secure random state value.
+  const state = crypto.randomBytes(32).toString("hex");
+  // console.log(state);
+
+  // Store state in the session
+  // req.session.state = state;
+
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
-    scope: ["https://www.googleapis.com/auth/spreadsheets",
-      'https://www.googleapis.com/auth/drive.metadata.readonly', ],
+    scope: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive.metadata.readonly",
+    ],
+    // Enable incremental authorization. Recommended as a best practice.
+    include_granted_scopes: true,
+    // Include the state parameter to reduce the risk of CSRF attacks.
+    // state: state,
   });
+
   res.redirect(authUrl);
 });
 
 app.get("/google/callback", async (req, res) => {
+  // const { code, state } = req.query;
   const { code } = req.query;
+
+  // //  SECURITY CHECK
+  // if (!state || state !== req.session.state) {
+  //   return res.status(403).send("CSRF Attack Detected ❌");
+  // }
+  
   const { tokens } = await oauth2Client.getToken(code);
+  
+  // This token will be provided only for first time signup users 
+  /**
+   * access_token: 'access_token_string',
+     refresh_token: 'refresh_token string',
+     scope: 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/spreadsheets',
+     token_type: 'Bearer',
+     refresh_token_expires_in: 604799,
+     expiry_date: 1773731754352
+   */
+  
   oauth2Client.setCredentials(tokens);
   // Store tokens securely (e.g., in DB or session)
   res.send("Authentication successful! You can now use the app.");
@@ -53,14 +86,17 @@ app.post("/api/create-sheet", async (req, res) => {
 });
 
 // List spreadsheets for a user
-app.get('/api/list-sheets', async (req, res) => {
+app.get("/api/list-sheets", async (req, res) => {
   try {
-    if (!drive) return res.status(401).send('No tokens stored for this user; re-auth required');
+    if (!drive)
+      return res
+        .status(401)
+        .send("No tokens stored for this user; re-auth required");
 
     const response = await drive.files.list({
       q: "mimeType='application/vnd.google-apps.spreadsheet'",
-      spaces: 'drive',
-      fields: 'files(id, name, owners, createdTime, modifiedTime, webViewLink)',
+      spaces: "drive",
+      fields: "files(id, name, owners, createdTime, modifiedTime, webViewLink)",
       pageSize: 50,
     });
 
@@ -70,20 +106,20 @@ app.get('/api/list-sheets', async (req, res) => {
   }
 });
 
-app.get('/api/get-sheet/:id', async (req, res) => {
+app.get("/api/get-sheet/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: id,
-      range: "sample" // sheet name inside the worksbook
+      range: "sample", // sheet name inside the worksbook
     });
-    
+
     const result = response.data;
-    
+
     /**
      * response.data structure
-     
+
      response  {
        range: 'sample!A1:Z1000',
        majorDimension: 'ROWS',
@@ -97,14 +133,13 @@ app.get('/api/get-sheet/:id', async (req, res) => {
          [ 'Magazzini Alimentari Riuniti', 'Giovanni Rovelli', 'Italy' ]
        ]
      }
-     
+
      */
-    
+
     res.json(result || []);
-    
   } catch (err) {
     return res.status(500).json({ error: err.message });
-    }
-})
+  }
+});
 
 app.listen(8000, () => console.log("Server running on port 5000"));
