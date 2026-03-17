@@ -6,7 +6,7 @@ import {
   getBasicAuth,
 } from "../zoomAuth";
 
-const router = Router();
+const router: Router = Router();
 const ZOOM_API_BASE = "https://api.zoom.us/v2";
 
 /** Get OAuth authorize URL for Connect Zoom link */
