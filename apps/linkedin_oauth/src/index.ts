@@ -1,14 +1,31 @@
 import express from "express";
 import dotenv from "dotenv";
+import { DBclient } from "./db/client";
+import { saveToken } from "./db/tokens";
 
 dotenv.config();
 
 const app = express();
 
+app.get("/get-all-token",async (req,res) =>{
+  const db = new DBclient();
+  await db.connect();
+
+  const client = db.getClient();
+  
+  const tokens = await client.query('SELECT * FROM token')
+  
+  res.status(200).send( {
+    tokens
+  })
+})
+
 app.get("/auth/linkedin", (req, res) => {
   const state = Math.random().toString(36).slice(2); // or a real CSRF token
 
-  const scope = encodeURIComponent("openid profile email w_member_social");
+  const scope = encodeURIComponent(
+    "openid profile email w_member_social r_ads_reporting r_ads r_organization_social w_organization_social rw_organization_admin r_organization_admin r_basicprofile r_1st_connections_size"
+  );
 
   const url =
     "https://www.linkedin.com/oauth/v2/authorization?" +
@@ -44,6 +61,7 @@ app.get("/linkedin/callback", async (req, res) => {
       body: params.toString(),
     });
 
+    
     if (!tokenResp.ok) {
       const errText = await tokenResp.text();
       return res.status(400).send(`Token exchange failed: ${errText}`);
@@ -56,7 +74,17 @@ app.get("/linkedin/callback", async (req, res) => {
     const userinfoResp = await fetch("https://api.linkedin.com/v2/userinfo", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
+    
     const userinfo = await userinfoResp.json();
+    
+    await saveToken({
+      email: userinfo.email,
+      access_token: tokenJson.access_token,
+      expires_in: tokenJson.expires_in,
+      refresh_token: tokenJson.refresh_token,
+      refresh_token_expires_in: tokenJson.refresh_token_expires_in,
+    });
+    
     return res.json({ token: tokenJson, userinfo });
     
   } catch (err: any) {
