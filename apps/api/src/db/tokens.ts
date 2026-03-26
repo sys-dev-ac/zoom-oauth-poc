@@ -77,3 +77,31 @@ export async function createTokenTable() {
   return rows[0];
 }
 
+
+export async function getTokenByEmail(email: string) {
+  const db = new DBclient();
+  await db.connect();
+  const client = db.getClient();
+
+  const { rows } = await client.query(
+    `SELECT * FROM oauthtoken WHERE email = $1 LIMIT 1`,
+    [email]
+  );
+
+  await client.end();
+  return rows[0] ?? null;
+}
+
+export async function getTokenById(id: number) {
+  const db = new DBclient();
+  await db.connect();
+  const client = db.getClient();
+
+  const { rows } = await client.query(
+    `SELECT * FROM oauthtoken WHERE id = $1 LIMIT 1`,
+    [id]
+  );
+
+  await client.end();
+  return rows[0] ?? null;
+}

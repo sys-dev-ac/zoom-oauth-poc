@@ -3,6 +3,8 @@ import cors from "cors";
 import connectZoomRouter from "./routes/connectZoom";
 import zoomRouter from "./routes/zoom";
 import figmaRouter from './routes/figma-auth/figma';
+import envatoRouter from './routes/envato/envato';
+import {figmaApprouter} from './routes/figma-auth/routes/application';
 
 import dotenv from "dotenv";
 import { createTokenTable } from "./db/tokens";
@@ -14,6 +16,9 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 app.use("", figmaRouter);
+app.use("/figma", figmaApprouter);
+app.use("", envatoRouter)
+
 
 app.get("/get-all-token",async (req,res) =>{
   const db = new DBclient();
