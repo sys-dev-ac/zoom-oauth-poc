@@ -1,15 +1,11 @@
 import express from "express";
 import cors from "cors";
-import connectZoomRouter from "./routes/connectZoom";
-import zoomRouter from "./routes/zoom";
-import figmaRouter from './routes/figma-auth/figma';
-import {figmaApprouter} from './routes/figma-auth/routes/application';
-
-import authRouter from './routes/authRoutes'; // global auth router
-import appRouter from './routes/appRoutes'; // global app router  
+import zoomConnectRouter from "./routes/zoom/application/app";
+import zoomApiRouter from "./routes/zoom/zoomApi";
+import authRouter from "./routes/authRoutes";
+import appRouter from "./routes/appRoutes";
 
 import dotenv from "dotenv";
-import { createTokenTable } from "./db/tokens";
 import { DBclient } from "./db/client";
 dotenv.config();
 
@@ -17,32 +13,25 @@ const app = express();
 
 app.use(cors({ origin: true }));
 app.use(express.json());
-app.use("", figmaRouter);
-app.use("/figma", figmaApprouter);
-app.use("/auth", authRouter)
+app.use("/auth", authRouter);
 app.use("", appRouter);
 
-
-app.get("/get-all-token",async (req,res) =>{
+app.get("/get-all-token", async (req, res) => {
   const db = new DBclient();
   await db.connect();
 
   const client = db.getClient();
-  
-  const tokens = await client.query('SELECT * FROM oauthtoken')
-  
-  res.status(200).send( {
-    data : tokens.rows[0]
-  })
-})
 
-app.use("/connectZoom", connectZoomRouter);
-app.use("/zoom", zoomRouter);
+  const tokens = await client.query("SELECT * FROM oauthtoken");
+
+  res.status(200).send({
+    data: tokens.rows,
+  });
+});
+
+app.use("/connectZoom", zoomConnectRouter);
+app.use("/zoom", zoomApiRouter);
 
 app.listen(8000, () => {
   console.log("Server is running on port 8000");
 });
-
-// createTokenTable().then(() => {
-//   console.log("table is created");
-// })

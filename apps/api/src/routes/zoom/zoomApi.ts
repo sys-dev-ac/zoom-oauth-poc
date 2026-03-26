@@ -1,15 +1,14 @@
 import { Router, Request, Response } from "express";
-import { getAnyZoomCredentials } from "../zoomStore";
+import { getAnyZoomCredentials } from "../../zoomStore";
 import {
   getOrRefreshCredentials,
   clearZoomUser,
   getBasicAuth,
-} from "../zoomAuth";
+} from "../../zoomAuth";
 
 const router: Router = Router();
 const ZOOM_API_BASE = "https://api.zoom.us/v2";
 
-/** Get OAuth authorize URL for Connect Zoom link */
 router.get("/auth-url", (_req: Request, res: Response) => {
   const clientId = process.env.ZOOM_API_KEY;
   const redirectUri = process.env.ZOOM_REDIRECT_URL;
@@ -20,7 +19,6 @@ router.get("/auth-url", (_req: Request, res: Response) => {
   return res.json({ url });
 });
 
-/** Get current Zoom connection (POC: returns first stored) */
 router.get("/connection", (_req: Request, res: Response) => {
   const creds = getAnyZoomCredentials();
   if (!creds) return res.status(404).json({ error: "No Zoom connection" });
@@ -30,7 +28,6 @@ router.get("/connection", (_req: Request, res: Response) => {
   });
 });
 
-/** Refresh token (optional standalone endpoint) */
 router.post("/refresh", async (req: Request, res: Response) => {
   try {
     const accountId = (req.body?.account_id as string) ?? getAnyZoomCredentials()?.account_id;
@@ -43,7 +40,6 @@ router.post("/refresh", async (req: Request, res: Response) => {
   }
 });
 
-/** Create meeting */
 router.post("/meetings", async (req: Request, res: Response) => {
   try {
     const accountId = (req.body?.account_id as string) ?? getAnyZoomCredentials()?.account_id;
@@ -80,7 +76,6 @@ router.post("/meetings", async (req: Request, res: Response) => {
   }
 });
 
-/** Update meeting */
 router.patch("/meetings/:meetingId", async (req: Request, res: Response) => {
   try {
     const meetingId = req.params.meetingId;
@@ -111,7 +106,6 @@ router.patch("/meetings/:meetingId", async (req: Request, res: Response) => {
   }
 });
 
-/** Delete meeting */
 router.delete("/meetings/:meetingId", async (req: Request, res: Response) => {
   try {
     const meetingId = req.params.meetingId;
@@ -136,7 +130,6 @@ router.delete("/meetings/:meetingId", async (req: Request, res: Response) => {
   }
 });
 
-/** List meetings (for UI) */
 router.get("/meetings", async (req: Request, res: Response) => {
   try {
     const accountId = (req.query.account_id as string) ?? getAnyZoomCredentials()?.account_id;
@@ -164,7 +157,6 @@ router.get("/meetings", async (req: Request, res: Response) => {
   }
 });
 
-/** Deauthorization endpoint (Zoom app compliance) */
 router.post("/deauthorize", async (req: Request, res: Response) => {
   try {
     const payload = req.body?.payload ?? req.body;
@@ -193,7 +185,7 @@ router.post("/deauthorize", async (req: Request, res: Response) => {
     return res.status(200).send();
   } catch (e) {
     console.error("Zoom deauthorize event error", e);
-    return res.status(200).send(); // Zoom expects 200 to acknowledge
+    return res.status(200).send();
   }
 });
 

@@ -17,6 +17,7 @@
     "@google-cloud/local-auth": "^2.1.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
+    "envato": "^3.2.0",
     "express": "^5.2.1",
     "googleapis": "^105.0.0",
     "pg": "^8.20.0"

@@ -105,3 +105,35 @@ export async function getTokenById(id: number) {
   await client.end();
   return rows[0] ?? null;
 }
+
+export async function getTokenByConnectionType(connectionType: string , userId?:string) {
+  const db = new DBclient();
+  await db.connect();
+  const client = db.getClient();
+
+  const { rows } = await client.query(
+    `SELECT * FROM oauthtoken WHERE connection_type = $1 AND email = $2`,
+    [connectionType , userId]
+  );
+
+  await client.end();
+  return rows[0] ?? null;
+}
+
+/** Updates access token and absolute expiry (Unix seconds) after OAuth refresh. */
+export async function updateTokenAccessByEmail(
+  email: string,
+  accessToken: string,
+  expiresAtUnixSeconds: number
+) {
+  const db = new DBclient();
+  await db.connect();
+  const client = db.getClient();
+
+  await client.query(
+    `UPDATE oauthtoken SET access_token = $1, expires_in = $2 WHERE email = $3`,
+    [accessToken, expiresAtUnixSeconds, email]
+  );
+
+  await client.end();
+}

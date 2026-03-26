@@ -1,8 +1,9 @@
 import { Router } from "express";
-import envatoRoutes from './envato/envato';
-
+import figmaAuthRouter from './figma/application/app';
+import envatoRouter from './envato/envatoApi';
 const router = Router();
 
-router.use("", envatoRoutes);
+router.use("",envatoRouter)
+router.use("", figmaAuthRouter);
 
 export default router;

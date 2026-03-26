@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
-import { exchangeCodeForTokens } from "../zoomAuth";
+import { exchangeCodeForTokens } from "../../../zoomAuth";
 
 const router: Router = Router();
 
+/** OAuth code exchange (POST body: { code }) — mounted at /connectZoom */
 router.post("/", async (req: Request, res: Response) => {
   try {
     const code = req.body?.code as string | undefined;
