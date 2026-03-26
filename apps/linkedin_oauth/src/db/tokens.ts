@@ -4,7 +4,7 @@ type TokenPayload = {
   access_token: string;
   expires_in: number | string;
   refresh_token: string;
-  refresh_token_expires_in: number | string;
+  refresh_token_expires_in?: number | string;
   email: string;
 };
 
@@ -32,7 +32,7 @@ export async function saveToken(token: TokenPayload) {
     token.access_token,
     token.expires_in.toString(),
     token.refresh_token,
-    token.refresh_token_expires_in.toString(),
+    token.refresh_token_expires_in?.toString() || "not provided",
   ];
 
   const { rows } = await client.query(sql, params);
